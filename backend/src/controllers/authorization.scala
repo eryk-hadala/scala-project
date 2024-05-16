@@ -64,4 +64,4 @@ def signOut(): Route = {
 def getSignedIn: Route = {
   cookie("user"): userCookie =>
     Response.json(JWT.decode(userCookie.value).get.toJson)
-}
+} 
