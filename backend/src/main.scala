@@ -6,9 +6,7 @@ import akka.actor.typed.ActorSystem
 import akka.actor.typed.scaladsl.Behaviors
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.server.Directives.{concat, pathPrefix}
-import models.User
-import routes.workspaces.WorkspacesRoutes
-import routes.authorization.AuthorizationRoutes
+import routes.{AuthRoutes, WorkspacesRoutes}
 
 @main
 def serve(): Unit =
@@ -19,8 +17,8 @@ def serve(): Unit =
   val routes =
     pathPrefix("v1"):
       concat(
-        WorkspacesRoutes().use,
-        AuthorizationRoutes().use
+        AuthRoutes.routes,
+        WorkspacesRoutes.routes,
       )
     
   val bindingFuture = Http().newServerAt("localhost", 8080).bind(routes)

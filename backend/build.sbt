@@ -24,8 +24,11 @@ libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-stream" % AkkaVersion,
   "com.typesafe.akka" %% "akka-http" % AkkaHttpVersion,
   "com.typesafe.akka" %% "akka-http-spray-json" % AkkaHttpVersion,
-  "org.mindrot" % "jbcrypt" % "0.4"
+  "org.mindrot" % "jbcrypt" % "0.4",
+  "com.typesafe.slick" %% "slick" % "3.5.1",
+  "org.slf4j" % "slf4j-nop" % "2.0.13",
+  "com.typesafe.slick" %% "slick-hikaricp" % "3.5.1",
+  "org.xerial" % "sqlite-jdbc" % "3.45.3.0",
+  "com.github.jwt-scala" %% "jwt-core" % "10.0.1",
+  "com.lihaoyi" %% "upickle" % "3.3.0"
 )
-libraryDependencies += "org.xerial" % "sqlite-jdbc" % "3.45.0.0"
-libraryDependencies += "com.github.jwt-scala" %% "jwt-core" % "10.0.0"
-libraryDependencies += "com.lihaoyi" %% "upickle" % "3.1.4"
