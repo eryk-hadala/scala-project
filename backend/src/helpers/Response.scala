@@ -7,13 +7,17 @@ import upickle.default.*
 
 object Response:
   def json(body: String): StandardRoute =
+    Thread.sleep(500)
     complete(HttpEntity(ContentTypes.`application/json`, body))
 
   def json[T: Writer](body: T): StandardRoute =
+    Thread.sleep(500)
     complete(HttpEntity(ContentTypes.`application/json`, write(body)))
 
   def json(status: StatusCode, body: String): StandardRoute =
+    Thread.sleep(500)
     complete(status, HttpEntity(ContentTypes.`application/json`, body))
 
   def json(status: StatusCode, body: Object): StandardRoute =
+    Thread.sleep(500)
     complete(status, HttpEntity(ContentTypes.`application/json`, body.toString))

@@ -29,7 +29,7 @@ object AuthController {
 
   def signUp(payload: SignUpPayload): Route = {
     try {
-      UsersModel.getByEmail(payload.email)
+      val user = UsersModel.getByEmail(payload.email)
       Response.json(StatusCodes.BadRequest, "Bad Request")
     } catch
         case _: Exception =>
@@ -47,7 +47,7 @@ object AuthController {
   }
 
   def signOut: Route = {
-    deleteCookie(cookieKey):
+    deleteCookie(cookieKey, path = "/"):
       Response.json("Success")
   }
   

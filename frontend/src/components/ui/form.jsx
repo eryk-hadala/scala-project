@@ -59,12 +59,7 @@ const FormLabel = React.forwardRef(({ className, ...props }, ref) => {
   const { error, formItemId } = useFormField();
 
   return (
-    <Label
-      ref={ref}
-      className={cn(error && "text-destructive", className)}
-      htmlFor={formItemId}
-      {...props}
-    />
+    <Label ref={ref} className={className} htmlFor={formItemId} {...props} />
   );
 });
 FormLabel.displayName = "FormLabel";
@@ -126,12 +121,18 @@ const FormMessage = React.forwardRef(
 );
 FormMessage.displayName = "FormMessage";
 
-const FormField = ({ children, name, label, description }) => {
+const FormField = ({
+  children,
+  label,
+  description,
+  className = "",
+  ...props
+}) => {
   return (
     <_FormField
-      name={name}
+      {...props}
       render={({ field }) => (
-        <FormItem>
+        <FormItem className={className}>
           {label && <FormLabel>{label}</FormLabel>}
           <FormControl>{React.cloneElement(children, field)}</FormControl>
           {description && <FormDescription>{description}</FormDescription>}
