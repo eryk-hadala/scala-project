@@ -1,37 +1,49 @@
 package routes
 
+import actors.UsersActor
 import akka.http.scaladsl.server.Directives.{as, concat, entity, get, path, pathPrefix, post}
 import akka.http.scaladsl.server.Route
+import akka.actor.typed.{ActorRef, ActorSystem}
 import controllers.AuthController
-import helpers.{Database, JsonSupport, Response}
-import slick.jdbc.SQLiteProfile.api.*
-import models.{Issues, UserWorkspaces, Workspaces}
+import controllers.AuthController.{SignInPayload, SignUpPayload, UpdatePayload}
+import helpers.JsonSupport
 
 object AuthRoutes extends JsonSupport {
-  val routes: Route = pathPrefix("auth"):
-    concat(
-      path("init"):
-        val users = TableQuery[Issues]
-        Database.exec(users.schema.create)
-        Response.json("success"),
-      path("sign-up"):
-        post:
-          entity(as[AuthController.SignUpPayload]):
-            AuthController.signUp,
-      path("sign-in"):
-        post:
-          entity(as[AuthController.SignInPayload]):
-            AuthController.signIn,
-      path("sign-out"):
-        post:
-          AuthController.signOut,
-      path("me"):
-        concat(
-          get:
-            AuthController.getSignedIn,
-          post:
-            entity(as[AuthController.UpdatePayload]):
-              AuthController.updateUser
-        )
-    )
+  def routes(userRegistry: ActorRef[UsersActor.Command], system: ActorSystem[_]): Route = {
+    pathPrefix("auth") {
+      concat(
+        path("sign-up") {
+          post {
+            entity(as[SignUpPayload]) { payload =>
+              AuthController.signUp(userRegistry, payload)(system.scheduler)
+            }
+          }
+        },
+        path("sign-in") {
+          post {
+            entity(as[SignInPayload]) { payload =>
+              AuthController.signIn(userRegistry, payload)(system.scheduler)
+            }
+          }
+        },
+        path("sign-out") {
+          post {
+            AuthController.signOut
+          }
+        },
+        path("me") {
+          concat(
+            get {
+              AuthController.getSignedIn(userRegistry)
+            },
+            post {
+              entity(as[UpdatePayload]) { payload =>
+                AuthController.updateUser(userRegistry, payload)(system.scheduler)
+              }
+            }
+          )
+        }
+      )
+    }
+  }
 }

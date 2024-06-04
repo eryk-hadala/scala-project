@@ -8,7 +8,8 @@ import upickle.default.*
 
 import java.time.LocalDateTime
 
-class User(val id: Int, val avatarUrl: String, val username: String, val email: String, val password: String, val modifiedAt: LocalDateTime, val createdAt: LocalDateTime)
+class User(val id: Int, val avatarUrl: String, val username: String, val email: String,
+           val password: String, val modifiedAt: LocalDateTime, val createdAt: LocalDateTime)
 
 object User {
   implicit val rw: ReadWriter[User] = readwriter[ujson.Value].bimap[User](
