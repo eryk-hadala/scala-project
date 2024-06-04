@@ -94,24 +94,4 @@ object UsersModel {
     val user = result.get
     User(user.id, user.avatarUrl, user.username, user.email, "", user.modifiedAt, user.createdAt)
   }
-
-  def getByEmail(email: String): User = {
-    val query = users.filter(_.email === email).result.headOption
-    val result: Option[User] = Database.exec(query)
-    result.get
-  }
-
-  def insert(user: User): User = {
-    val query = (users returning users.map(_.id)) += user
-    val result: Int = Database.exec(query)
-    getById(result)
-  }
-
-  def update(id: Int, avatarUrl: String, username: String): User = {
-    val query = users.filter(_.id === id)
-      .map(oldUser => (oldUser.avatarUrl, oldUser.username, oldUser.modifiedAt))
-      .update((avatarUrl, username, LocalDateTime.now()))
-    Database.exec(query)
-    getById(id)
-  }
 }

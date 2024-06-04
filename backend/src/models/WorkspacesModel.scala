@@ -1,6 +1,5 @@
 package models
 
-import helpers.Database
 import slick.jdbc.SQLiteProfile.api.*
 import slick.lifted.ProvenShape
 import upickle.default.*
@@ -58,35 +57,4 @@ class Workspaces(tag: Tag) extends Table[Workspace](tag, "Workspaces") {
   def createdAt = column[LocalDateTime]("createdAt")
 
   def * : ProvenShape[Workspace] = (id, name, ownerId, modifiedAt, createdAt) <> (Workspace.apply, Workspace.unapply)
-}
-
-object WorkspacesModel {
-  private val workspaces = TableQuery[Workspaces]
-
-  def getById(id: Int): Workspace = {
-    val query = workspaces.filter(_.id === id).result.headOption
-    val result: Option[Workspace] = Database.exec(query)
-    result.get
-  }
-
-  def insert(workspace: Workspace): Workspace = {
-    val query = (workspaces returning workspaces.map(_.id)) += workspace
-    val result: Int = Database.exec(query)
-    getById(result)
-  }
-
-  def update(id: Int, name: String): Workspace = {
-    val query = workspaces.filter(_.id === id)
-      .map(oldWorkspace => (oldWorkspace.name, oldWorkspace.modifiedAt))
-      .update((name, LocalDateTime.now()))
-    Database.exec(query)
-    getById(id)
-  }
-
-  def delete(id: Int): Workspace = {
-    val workspace = getById(id)
-    val query = workspaces.filter(_.id === id).delete
-    Database.exec(query)
-    workspace
-  }
 }
