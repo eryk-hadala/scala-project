@@ -1,7 +1,7 @@
 package models
 
 import helpers.Database
-import slick.jdbc.SQLiteProfile.api._
+import slick.jdbc.SQLiteProfile.api.*
 import slick.lifted.ProvenShape
 import upickle.default.*
 
@@ -76,8 +76,8 @@ class Issues(tag: Tag) extends Table[Issue](tag, "Issues") {
 
 object IssuesModel {
   private val issues = TableQuery[Issues]
-  private val users = TableQuery[Users]
-  private val userIssues = TableQuery[UserIssues]
+  //  private val users = TableQuery[Users]
+  //  private val userIssues = TableQuery[UserIssues]
 
   def getById(id: Int): Issue = {
     val query = issues.filter(_.id === id).result.headOption
@@ -90,7 +90,7 @@ object IssuesModel {
     val result = Database.exec(query)
     result
   }
-  
+
   def insert(issue: Issue): Issue = {
     val query = (issues returning issues.map(_.id)) += issue
     val result: Int = Database.exec(query)

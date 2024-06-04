@@ -1,44 +1,47 @@
 package routes
 
 import actors.{AuthActor, UsersActor}
+import akka.actor.typed.{ActorRef, ActorSystem}
 import akka.http.scaladsl.server.Directives.{as, concat, entity, get, path, pathPrefix, post}
 import akka.http.scaladsl.server.Route
-import akka.actor.typed.{ActorRef, ActorSystem}
 import controllers.AuthController
 import controllers.AuthController.{SignInPayload, SignUpPayload, UpdatePayload}
 import helpers.JsonSupport
 
-object AuthRoutes extends JsonSupport {
-  def routes(authActor: ActorRef[AuthActor.Command], usersActor: ActorRef[UsersActor.Command], system: ActorSystem[_]): Route = {
+class AuthRoutes(authActor: ActorRef[AuthActor.Command], usersActor: ActorRef[UsersActor.Command])
+                (implicit system: ActorSystem[_]) extends JsonSupport {
+  private val controller = new AuthController(authActor, usersActor)
+
+  def routes: Route = {
     pathPrefix("auth") {
       concat(
         path("sign-up") {
           post {
             entity(as[SignUpPayload]) { payload =>
-              AuthController.signUp(authActor, payload)(system.scheduler)
+              controller.signUp(payload)
             }
           }
         },
         path("sign-in") {
           post {
             entity(as[SignInPayload]) { payload =>
-              AuthController.signIn(authActor, payload)(system.scheduler)
+              controller.signIn(payload)
             }
           }
         },
         path("sign-out") {
           post {
-            AuthController.signOut
+            controller.signOut
           }
         },
         path("me") {
           concat(
             get {
-              AuthController.getSignedIn
+              controller.getSignedIn
             },
             post {
               entity(as[UpdatePayload]) { payload =>
-                AuthController.updateUser(usersActor, payload)(system.scheduler)
+                controller.updateUser(payload)
               }
             }
           )

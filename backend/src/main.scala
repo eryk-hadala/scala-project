@@ -1,16 +1,15 @@
 package app
 
-import actors.{AuthActor, UsersActor}
-
-import scala.io.StdIn
+import actors.{AuthActor, UsersActor, WorkspacesActor}
 import akka.actor.typed.ActorSystem
 import akka.actor.typed.scaladsl.Behaviors
 import akka.http.scaladsl.Http
-import akka.http.scaladsl.server.Directives.pathPrefix
-import akka.http.scaladsl.server.Directives.concat
+import akka.http.scaladsl.server.Directives.{concat, pathPrefix}
 import akka.http.scaladsl.server.Route
 import helpers.Cors
 import routes.{AuthRoutes, WorkspacesRoutes}
+
+import scala.io.StdIn
 
 def startHttpServer(routes: Route)(implicit system: ActorSystem[_]): Unit = {
   import system.executionContext
@@ -27,16 +26,22 @@ def startHttpServer(routes: Route)(implicit system: ActorSystem[_]): Unit = {
 @main
 def serve(): Unit =
   val rootBehavior = Behaviors.setup[Nothing] { context =>
+    implicit val system: ActorSystem[Nothing] = context.system
+
     val usersActor = context.spawn(UsersActor(), "UsersActor")
-    val authActor = context.spawn(AuthActor(usersActor)(context.system), "AuthActor")
+    val authActor = context.spawn(AuthActor(usersActor), "AuthActor")
+    val workspacesActor = context.spawn(WorkspacesActor(usersActor), "WorkspacesActor")
+
     context.watch(usersActor)
     context.watch(authActor)
+    context.watch(workspacesActor)
+
 
     val routes = Cors.corsHandler {
       pathPrefix("v1"):
         concat(
-          AuthRoutes.routes(authActor, usersActor, context.system),
-          WorkspacesRoutes.routes,
+          new AuthRoutes(authActor, usersActor).routes,
+          new WorkspacesRoutes(workspacesActor).routes,
         )
     }
 

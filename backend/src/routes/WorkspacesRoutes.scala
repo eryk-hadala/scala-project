@@ -1,38 +1,55 @@
 package routes
 
+import actors.WorkspacesActor
+import akka.actor.typed.{ActorRef, ActorSystem}
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Directives.*
-import akka.http.scaladsl.server.Route
 import akka.http.scaladsl.server.PathMatchers.IntNumber
-import controllers.{AuthController, IssuesController, WorkspacesController}
-import helpers.{JsonSupport, Response}
+import akka.http.scaladsl.server.Route
+import controllers.{IssuesController, WorkspacesController}
+import helpers.{Auth, JsonSupport, Response}
 import models.UserWorkspacesModel
 
-object WorkspacesRoutes extends JsonSupport {
-  val routes: Route =
+class WorkspacesRoutes(val workspacesActor: ActorRef[WorkspacesActor.Command])
+                      (implicit system: ActorSystem[_]) extends JsonSupport {
+  private val controller = new WorkspacesController(workspacesActor)
+
+  def routes: Route =
     pathPrefix("workspaces") {
       concat(
         pathEndOrSingleSlash:
           concat(
             get:
-              WorkspacesController.getWorkspaces,
+              controller.getWorkspaces,
             post:
               entity(as[WorkspacesController.CreatePayload]):
-                WorkspacesController.createWorkspace,
+                controller.createWorkspace,
           ),
         pathPrefix(IntNumber): workspaceId =>
-          AuthController.authenticate(user => {
+          concat(
+            pathEndOrSingleSlash {
+              concat(
+                get:
+                  controller.getWorkspace(workspaceId),
+                put:
+                  entity(as[WorkspacesController.UpdatePayload]): payload =>
+                    controller.updateWorkspace(workspaceId, payload),
+                delete:
+                  controller.deleteWorkspace(workspaceId)
+              )
+            },
+            path("members") {
+              concat(
+                get:
+                  controller.getMembers(workspaceId),
+                post:
+                  entity(as[WorkspacesController.InviteUserPayload]): payload =>
+                    controller.inviteUser(workspaceId, payload)
+              )
+            },
+            Auth.userRoute(user => {
               if !UserWorkspacesModel.isUserMember(user.id, workspaceId) then Response.json(StatusCodes.Unauthorized, "Unauthorized")
               else concat(
-                path("members") {
-                  concat(
-                    get:
-                      WorkspacesController.getMembers(workspaceId),
-                    post:
-                      entity(as[WorkspacesController.InviteUserPayload]): payload =>
-                        WorkspacesController.inviteUser(workspaceId, payload)
-                  )
-                },
                 pathPrefix("issues") {
                   concat(
                     pathEndOrSingleSlash:
@@ -58,20 +75,10 @@ object WorkspacesRoutes extends JsonSupport {
                               IssuesController.setAssignees(issueId, payload)
                       )
                   )
-                },
-                pathEndOrSingleSlash {
-                  concat(
-                    get:
-                      WorkspacesController.getWorkspace(workspaceId),
-                    put:
-                      entity(as[WorkspacesController.UpdatePayload]): payload =>
-                        WorkspacesController.updateWorkspace(workspaceId, payload),
-                    delete:
-                      WorkspacesController.deleteWorkspace(workspaceId)
-                  )
                 }
               )
             }
+            )
           )
       )
     }

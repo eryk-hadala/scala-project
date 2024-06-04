@@ -17,6 +17,9 @@ object Response:
   def json(status: StatusCode, body: String): StandardRoute =
     Thread.sleep(500)
     complete(status, HttpEntity(ContentTypes.`application/json`, body))
+    
+  def status(status: StatusCode): StandardRoute =
+    complete(status)
 
   def json(status: StatusCode, body: Object): StandardRoute =
     Thread.sleep(500)

@@ -1,11 +1,9 @@
 package actors
 
-import akka.actor.typed.ActorRef
-import models.{User, Users}
-import akka.actor.typed.Behavior
 import akka.actor.typed.scaladsl.Behaviors
+import akka.actor.typed.{ActorRef, Behavior}
 import helpers.Database
-import org.mindrot.jbcrypt.BCrypt
+import models.{User, Users}
 import slick.jdbc.SQLiteProfile.api.*
 
 import java.time.LocalDateTime
@@ -15,6 +13,8 @@ object UsersActor {
   sealed trait Command
 
   final case class GetById(id: Int, replyTo: ActorRef[Option[User]]) extends Command
+
+  final case class GetByIds(ids: Seq[Int], replyTo: ActorRef[Seq[User]]) extends Command
 
   final case class GetByEmail(email: String, replyTo: ActorRef[Option[User]]) extends Command
 
@@ -42,6 +42,10 @@ object UsersActor {
 
       case GetById(id, replyTo) =>
         replyTo ! getUserById(id)
+        Behaviors.same
+
+      case GetByIds(ids, replyTo) =>
+        replyTo ! ids.map(getUserById).filter(_.isDefined).map(_.get)
         Behaviors.same
 
       case GetByEmail(email, replyTo) =>

@@ -2,7 +2,7 @@ package controllers
 
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Route
-import helpers.Response
+import helpers.{Auth, Response}
 import models.{Issue, IssuesModel, User, UserIssuesModel, UsersModel}
 import upickle.default.*
 
@@ -11,11 +11,14 @@ import java.time.LocalDateTime
 
 object IssuesController {
   case class CreatePayload(title: String, content: String)
+
   case class UpdatePayload(title: String, content: String)
+
   case class SetAssigneesPayload(userIds: Seq[Int])
 
-  case class GetIssuesResponse(id: Int, title: String, modifiedAt: String, createdAt: String, assignees: Seq[User]) derives ReadWriter
-  case class GetSingleIssueResponse(id: Int, owner: User, title: String, content: String, modifiedAt: String, createdAt: String, assignees: Seq[User]) derives ReadWriter
+  case class GetIssuesResponse(id: Int, title: String, modifiedAt: String, createdAt: String, assignees: Seq[User])derives ReadWriter
+
+  case class GetSingleIssueResponse(id: Int, owner: User, title: String, content: String, modifiedAt: String, createdAt: String, assignees: Seq[User])derives ReadWriter
 
   def getIssues(workspaceId: Int): Route = {
     val issues = IssuesModel.getByWorkspaceId(workspaceId)
@@ -27,7 +30,7 @@ object IssuesController {
     Response.json(GetSingleIssueResponse(issue.id, UsersModel.getById(issue.ownerId), issue.title, issue.content, issue.modifiedAt.toString, issue.createdAt.toString, UserIssuesModel.getIssueUsers(issue.id)))
   }
 
-  def createIssue(workspaceId: Int, payload: CreatePayload): Route = AuthController.authenticate(user => {
+  def createIssue(workspaceId: Int, payload: CreatePayload): Route = Auth.userRoute(user => {
     val currentDateTime = LocalDateTime.now()
     val issue = IssuesModel.insert(Issue(0, user.id, workspaceId, payload.title, payload.content, currentDateTime, currentDateTime))
     Response.json(issue)
