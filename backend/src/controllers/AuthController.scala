@@ -14,6 +14,7 @@ import akka.http.scaladsl.server.Directives.{cookie, deleteCookie, onSuccess, se
 import models.User
 import akka.util.Timeout
 
+import java.time.LocalDateTime
 import scala.util.{Failure, Success}
 import scala.concurrent.Future
 import scala.concurrent.duration.*
@@ -26,6 +27,12 @@ object AuthController {
   case class SignUpPayload(avatarUrl: String, username: String, email: String, password: String)
 
   case class UpdatePayload(avatarUrl: String, username: String)
+
+  private final case class UserResponse(id: Int, email: String, username: String, avatarUrl: String,
+                                        modifiedAt: LocalDateTime, createdAt: LocalDateTime)
+
+  private val toResponse = (user: User) => UserResponse(user.id, user.email, user.username,
+    user.avatarUrl, user.modifiedAt, user.createdAt)
 
   implicit val timeout: Timeout = 5.seconds
 

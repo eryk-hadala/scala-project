@@ -15,13 +15,6 @@ import java.time.LocalDateTime
 import scala.concurrent.duration.*
 import scala.util.{Failure, Success}
 
-//final case class SignInPayload(email: String, password: String)
-
-//final case class SignUpPayload(avatarUrl: String, username: String, email: String, password: String)
-
-final case class UpdatePayload(avatarUrl: String, username: String)
-
-
 object AuthActor {
   sealed trait Command
 
@@ -37,11 +30,7 @@ object AuthActor {
 
   final case class SignInResponse(user: Option[User])
 
-  final case class UserResponse(id: Int, email: String, username: String, avatarUrl: String,
-                                modifiedAt: LocalDateTime, createdAt: LocalDateTime)
 
-  //  private val toResponse = (user: User) => UserResponse(user.id, user.email, user.username,
-  //    user.avatarUrl, user.modifiedAt, user.createdAt)
   private val toResponse = (user: User) => user
 
   def apply(usersActor: ActorRef[UsersActor.Command])(implicit system: ActorSystem[_]): Behavior[Command] = Behaviors.setup { context =>

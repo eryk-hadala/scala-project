@@ -3,11 +3,14 @@ package app
 import actors.{AuthActor, UsersActor}
 
 import scala.io.StdIn
-import akka.actor.typed.{ActorSystem, Scheduler}
+import akka.actor.typed.ActorSystem
 import akka.actor.typed.scaladsl.Behaviors
 import akka.http.scaladsl.Http
+import akka.http.scaladsl.server.Directives.pathPrefix
+import akka.http.scaladsl.server.Directives.concat
 import akka.http.scaladsl.server.Route
-import routes.AuthRoutes
+import helpers.Cors
+import routes.{AuthRoutes, WorkspacesRoutes}
 
 def startHttpServer(routes: Route)(implicit system: ActorSystem[_]): Unit = {
   import system.executionContext
@@ -29,13 +32,16 @@ def serve(): Unit =
     context.watch(usersActor)
     context.watch(authActor)
 
-    //    val routes = AuthRoutes.routes
-    //    startHttpServer(routes)(context.system)
+    val routes = Cors.corsHandler {
+      pathPrefix("v1"):
+        concat(
+          AuthRoutes.routes(authActor, usersActor, context.system),
+          WorkspacesRoutes.routes,
+        )
+    }
 
-    val routes = AuthRoutes.routes(authActor, usersActor, context.system) // Pass the usersActor to AuthRoutes
     startHttpServer(routes)(context.system)
 
     Behaviors.empty
   }
   val system = ActorSystem[Nothing](rootBehavior, "web-server")
-//  implicit val scheduler: Scheduler = system.scheduler
