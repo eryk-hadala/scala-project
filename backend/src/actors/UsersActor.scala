@@ -19,7 +19,7 @@ object UsersActor {
   final case class GetByEmail(email: String, replyTo: ActorRef[Option[User]]) extends Command
 
   final case class CreateNew(username: String, email: String,
-                             avatarUrl: String, password: String,
+                             avatarUrl: String, passwordHash: String,
                              replyTo: ActorRef[User]) extends Command
 
   final case class Update(id: Int, avatarUrl: String, username: String, replyTo: ActorRef[User]) extends Command
@@ -50,8 +50,7 @@ object UsersActor {
         replyTo ! result
         Behaviors.same
 
-      case CreateNew(username, email, avatarUrl, password, replyTo) =>
-        val passwordHash = BCrypt.hashpw(password, BCrypt.gensalt)
+      case CreateNew(username, email, avatarUrl, passwordHash, replyTo) =>
         val user = User(0, avatarUrl, username, email, passwordHash, LocalDateTime.now(), LocalDateTime.now())
         val addQuery = (users returning users.map(_.id)) += user
         val id: Int = Database.exec(addQuery)

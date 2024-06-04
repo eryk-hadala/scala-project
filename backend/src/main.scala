@@ -1,6 +1,6 @@
 package app
 
-import actors.UsersActor
+import actors.{AuthActor, UsersActor}
 
 import scala.io.StdIn
 import akka.actor.typed.{ActorSystem, Scheduler}
@@ -24,13 +24,15 @@ def startHttpServer(routes: Route)(implicit system: ActorSystem[_]): Unit = {
 @main
 def serve(): Unit =
   val rootBehavior = Behaviors.setup[Nothing] { context =>
-    val usersActor = context.spawn(UsersActor(), "UserRegistryActor")
+    val usersActor = context.spawn(UsersActor(), "UsersActor")
+    val authActor = context.spawn(AuthActor(usersActor)(context.system), "AuthActor")
     context.watch(usersActor)
+    context.watch(authActor)
 
     //    val routes = AuthRoutes.routes
     //    startHttpServer(routes)(context.system)
 
-    val routes = AuthRoutes.routes(usersActor, context.system) // Pass the usersActor to AuthRoutes
+    val routes = AuthRoutes.routes(authActor, usersActor, context.system) // Pass the usersActor to AuthRoutes
     startHttpServer(routes)(context.system)
 
     Behaviors.empty
