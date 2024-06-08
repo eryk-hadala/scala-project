@@ -1,6 +1,5 @@
 package models
 
-import helpers.Database
 import slick.jdbc.SQLiteProfile.api.*
 import slick.lifted.ProvenShape
 import upickle.default.*
@@ -72,43 +71,4 @@ class Issues(tag: Tag) extends Table[Issue](tag, "Issues") {
   def createdAt = column[LocalDateTime]("createdAt")
 
   def * : ProvenShape[Issue] = (id, ownerId, workspaceId, title, content, modifiedAt, createdAt) <> (Issue.apply, Issue.unapply)
-}
-
-object IssuesModel {
-  private val issues = TableQuery[Issues]
-  //  private val users = TableQuery[Users]
-  //  private val userIssues = TableQuery[UserIssues]
-
-  def getById(id: Int): Issue = {
-    val query = issues.filter(_.id === id).result.headOption
-    val result: Option[Issue] = Database.exec(query)
-    result.get
-  }
-
-  def getByWorkspaceId(workspaceId: Int): Seq[Issue] = {
-    val query = issues.filter(_.workspaceId === workspaceId).result
-    val result = Database.exec(query)
-    result
-  }
-
-  def insert(issue: Issue): Issue = {
-    val query = (issues returning issues.map(_.id)) += issue
-    val result: Int = Database.exec(query)
-    getById(result)
-  }
-
-  def update(id: Int, title: String, content: String): Issue = {
-    val query = issues.filter(_.id === id)
-      .map(oldUser => (oldUser.title, oldUser.content, oldUser.modifiedAt))
-      .update((title, content, LocalDateTime.now()))
-    Database.exec(query)
-    getById(id)
-  }
-
-  def delete(id: Int): Issue = {
-    val issue = getById(id)
-    val query = issues.filter(_.id === id).delete
-    Database.exec(query)
-    issue
-  }
 }

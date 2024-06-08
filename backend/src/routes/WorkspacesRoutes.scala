@@ -1,6 +1,6 @@
 package routes
 
-import actors.WorkspacesActor
+import actors.{IssuesActor, WorkspacesActor}
 import akka.actor.typed.{ActorRef, ActorSystem}
 import akka.http.scaladsl.server.Directives.*
 import akka.http.scaladsl.server.PathMatchers.IntNumber
@@ -8,10 +8,10 @@ import akka.http.scaladsl.server.Route
 import controllers.{IssuesController, WorkspacesController}
 import helpers.{Auth, JsonSupport}
 
-class WorkspacesRoutes(val workspacesActor: ActorRef[WorkspacesActor.Command])
-                      (implicit system: ActorSystem[_]) extends JsonSupport {
+class WorkspacesRoutes(val workspacesActor: ActorRef[WorkspacesActor.Command],
+                       val issuesActor: ActorRef[IssuesActor.Command])(implicit system: ActorSystem[_]) extends JsonSupport {
   private val workspacesController = new WorkspacesController(workspacesActor)
-  private val issuesController = new IssuesController(workspacesActor)
+  private val issuesController = new IssuesController(workspacesActor, issuesActor)
 
   def routes: Route =
     pathPrefix("workspaces") {

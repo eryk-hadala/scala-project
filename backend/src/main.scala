@@ -1,6 +1,6 @@
 package app
 
-import actors.{AuthActor, UsersActor, WorkspacesActor}
+import actors.{AuthActor, IssuesActor, UsersActor, WorkspacesActor}
 import akka.actor.typed.ActorSystem
 import akka.actor.typed.scaladsl.Behaviors
 import akka.http.scaladsl.Http
@@ -31,17 +31,19 @@ def serve(): Unit =
     val usersActor = context.spawn(UsersActor(), "UsersActor")
     val authActor = context.spawn(AuthActor(usersActor), "AuthActor")
     val workspacesActor = context.spawn(WorkspacesActor(usersActor), "WorkspacesActor")
+    val issuesActor = context.spawn(IssuesActor(usersActor), "IssuesActor")
 
     context.watch(usersActor)
     context.watch(authActor)
     context.watch(workspacesActor)
+    context.watch(issuesActor)
 
 
     val routes = Cors.corsHandler {
       pathPrefix("v1"):
         concat(
           new AuthRoutes(authActor, usersActor).routes,
-          new WorkspacesRoutes(workspacesActor).routes,
+          new WorkspacesRoutes(workspacesActor, issuesActor).routes,
         )
     }
 

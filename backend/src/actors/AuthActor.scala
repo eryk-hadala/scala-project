@@ -37,12 +37,12 @@ object AuthActor {
 
       Behaviors.receiveMessage {
         case SignUp(payload, replyTo) =>
-          val userFuture: Future[Option[User]] = usersActor.ask(ref => UsersActor.GetByEmail(payload.email, ref))
+          val userFuture: Future[Option[User]] = usersActor ? (ref => UsersActor.GetByEmail(payload.email, ref))
           userFuture.onComplete {
             case Success(Some(_)) => replyTo ! UserExists()
             case Success(None) =>
               val passwordHash = BCrypt.hashpw(payload.password, BCrypt.gensalt)
-              val createUserFuture: Future[User] = usersActor.ask(ref =>
+              val createUserFuture: Future[User] = usersActor ? (ref =>
                 UsersActor.CreateNew(payload.username, payload.email, payload.avatarUrl, passwordHash, ref))
               createUserFuture.onComplete {
                 case Success(user) => replyTo ! SignUpResponse(user)

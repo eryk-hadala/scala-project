@@ -1,6 +1,5 @@
 package models
 
-import helpers.Database
 import pdi.jwt.JwtClaim
 import slick.jdbc.SQLiteProfile.api.*
 import slick.lifted.ProvenShape
@@ -83,15 +82,4 @@ class Users(tag: Tag) extends Table[User](tag, "Users") {
   def createdAt = column[LocalDateTime]("createdAt")
 
   def * : ProvenShape[User] = (id, avatarUrl, username, email, password, modifiedAt, createdAt) <> (User.apply, User.unapply)
-}
-
-object UsersModel {
-  private val users = TableQuery[Users]
-
-  def getById(id: Int): User = {
-    val query = users.filter(_.id === id).result.headOption
-    val result: Option[User] = Database.exec(query)
-    val user = result.get
-    User(user.id, user.avatarUrl, user.username, user.email, "", user.modifiedAt, user.createdAt)
-  }
 }
