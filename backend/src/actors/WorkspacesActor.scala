@@ -89,7 +89,7 @@ object WorkspacesActor {
           workspaceOption match
             case None => replyTo ! WorkspaceNotFound()
             case Some(workspace) =>
-              val future: Future[Option[User]] = usersActor ? (ref => UsersActor.GetById(workspace.ownerId, ref))
+              val future: Future[Option[User]] = usersActor ? (UsersActor.GetById(workspace.ownerId, _))
               future.onComplete {
                 case Failure(_) => replyTo ! InternalError()
                 case Success(Some(user)) => replyTo ! user
@@ -99,7 +99,7 @@ object WorkspacesActor {
 
         case GetMembers(workspaceId, replyTo) =>
           val workspaceUserIds = getWorkspaceUserIds(workspaceId)
-          val workspaceUsersFuture: Future[Seq[User]] = usersActor ? (ref => GetByIds(workspaceUserIds, ref))
+          val workspaceUsersFuture: Future[Seq[User]] = usersActor ? (GetByIds(workspaceUserIds, _))
 
           workspaceUsersFuture.onComplete {
             case Success(users) => replyTo ! users

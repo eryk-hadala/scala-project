@@ -32,7 +32,7 @@ class IssuesController(val workspacesActor: ActorRef[WorkspacesActor.Command],
   implicit val timeout: Timeout = 5.seconds
 
   private def memberRouteUser(workspaceId: Int)(callback: User => Route): Route = Auth.userRoute(user => {
-    val membersFuture: Future[Seq[User] | InternalError] = workspacesActor ? (ref => GetMembers(workspaceId, ref))
+    val membersFuture: Future[Seq[User] | InternalError] = workspacesActor ? (GetMembers(workspaceId, _))
     val result = Await.result(membersFuture, timeout.duration)
     result match
       case error: InternalError => Response.status(StatusCodes.InternalServerError)
@@ -43,7 +43,7 @@ class IssuesController(val workspacesActor: ActorRef[WorkspacesActor.Command],
   private def memberRoute(workspaceId: Int)(callback: => Route): Route = memberRouteUser(workspaceId)(_ => callback)
 
   def getIssues(workspaceId: Int): Route = memberRoute(workspaceId: Int) {
-    val future: Future[Seq[GetIssuesResponse]] = issuesActor ? (ref => GetIssuesByWorkspaceId(workspaceId, ref))
+    val future: Future[Seq[GetIssuesResponse]] = issuesActor ? (GetIssuesByWorkspaceId(workspaceId, _))
 
     onSuccess(future) {
       issues => Response.json(issues)
@@ -51,7 +51,7 @@ class IssuesController(val workspacesActor: ActorRef[WorkspacesActor.Command],
   }
 
   def getSingleIssue(workspaceId: Int, issueId: Int): Route = memberRoute(workspaceId: Int) {
-    val future: Future[Option[GetSingleIssueResponse]] = issuesActor ? (ref => GetById(issueId, ref))
+    val future: Future[Option[GetSingleIssueResponse]] = issuesActor ? (GetById(issueId, _))
 
     onSuccess(future) {
       case None => Response.status(StatusCodes.BadRequest)
@@ -61,14 +61,14 @@ class IssuesController(val workspacesActor: ActorRef[WorkspacesActor.Command],
 
   def createIssue(workspaceId: Int, payload: CreatePayload): Route = memberRouteUser(workspaceId)(user => {
     val data = IssuesActor.CreatePayload(payload.title, payload.content, user.id, workspaceId)
-    val future: Future[Issue] = issuesActor ? (ref => CreateIssue(data, ref))
+    val future: Future[Issue] = issuesActor ? (CreateIssue(data, _))
 
     onSuccess(future)(Response.json(_))
   })
 
   def updateIssue(workspaceId: Int, issueId: Int, payload: UpdatePayload): Route = memberRoute(workspaceId) {
     val data = IssueData(payload.title, payload.content)
-    val future: Future[Option[Issue]] = issuesActor ? (ref => UpdateIssue(issueId, data, ref))
+    val future: Future[Option[Issue]] = issuesActor ? (UpdateIssue(issueId, data, _))
     onSuccess(future) {
       case None => Response.status(StatusCodes.BadRequest)
       case issue => Response.json(issue)
@@ -76,12 +76,12 @@ class IssuesController(val workspacesActor: ActorRef[WorkspacesActor.Command],
   }
 
   def deleteIssue(workspaceId: Int, issueId: Int): Route = memberRoute(workspaceId) {
-    val future: Future[IssueDeleted] = issuesActor ? (ref => DeleteIssue(issueId, ref))
+    val future: Future[IssueDeleted] = issuesActor ? (DeleteIssue(issueId, _))
     onSuccess(future)(_ => Response.status(StatusCodes.OK))
   }
 
   def setAssignees(workspaceId: Int, issueId: Int, payload: SetAssigneesPayload): Route = memberRoute(workspaceId) {
-    val future: Future[AssigneesSetSuccessfully] = issuesActor ? (ref => SetAssignees(issueId, payload, ref))
+    val future: Future[AssigneesSetSuccessfully] = issuesActor ? (SetAssignees(issueId, payload, _))
     onSuccess(future)(_ => Response.status(StatusCodes.OK))
   }
 }

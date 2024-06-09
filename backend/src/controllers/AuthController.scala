@@ -3,7 +3,7 @@ package controllers
 import actors.AuthActor.{InternalError, SignInResponse, SignUpResponse, UserExists}
 import actors.{AuthActor, UsersActor}
 import akka.actor.typed.scaladsl.AskPattern.*
-import akka.actor.typed.{ActorRef, ActorSystem, Scheduler}
+import akka.actor.typed.{ActorRef, ActorSystem}
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.model.headers.HttpCookie
 import akka.http.scaladsl.server.Directives.{deleteCookie, onSuccess, setCookie}
@@ -44,7 +44,7 @@ class AuthController(val authActor: ActorRef[AuthActor.Command], val usersActor:
   }
 
   def signUp(payload: SignUpPayload): Route = {
-    val future: Future[SignUpResponse | UserExists | InternalError] = authActor ? (ref => AuthActor.SignUp(payload, ref))
+    val future: Future[SignUpResponse | UserExists | InternalError] = authActor ? (AuthActor.SignUp(payload, _))
     onSuccess(future) {
       case SignUpResponse(user) => Response.json(user)
       case _: UserExists => Response.json(StatusCodes.BadRequest, "User already exists")
@@ -53,7 +53,7 @@ class AuthController(val authActor: ActorRef[AuthActor.Command], val usersActor:
   }
 
   def signIn(payload: SignInPayload): Route = {
-    val future: Future[SignInResponse | InternalError] = authActor ? (ref => AuthActor.SignIn(payload, ref))
+    val future: Future[SignInResponse | InternalError] = authActor ? (AuthActor.SignIn(payload, _))
 
     onSuccess(future) {
       case SignInResponse(Some(user)) => setUserCookie(user)
@@ -72,8 +72,8 @@ class AuthController(val authActor: ActorRef[AuthActor.Command], val usersActor:
 
   def updateUser(payload: UpdatePayload): Route = {
     Auth.userRoute { oldUser =>
-      val updateUserFuture: Future[User] = usersActor ? (ref =>
-        UsersActor.Update(oldUser.id, payload.avatarUrl, payload.username, ref))
+      val updateUserFuture: Future[User] =
+        usersActor ? (UsersActor.Update(oldUser.id, payload.avatarUrl, payload.username, _))
       onSuccess(updateUserFuture)(Response.json(_))
     }
   }

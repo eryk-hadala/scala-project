@@ -31,17 +31,17 @@ class WorkspacesController(val workspacesActor: ActorRef[WorkspacesActor.Command
   implicit val timeout: Timeout = 5.seconds
 
   def getWorkspaces: Route = Auth.userRoute(user => {
-    val future: Future[Seq[Workspace]] = workspacesActor ? (ref => GetUserWorkspaces(user, ref))
+    val future: Future[Seq[Workspace]] = workspacesActor ? (GetUserWorkspaces(user, _))
     onSuccess(future)(Response.json(_))
   })
 
   def createWorkspace(payload: CreatePayload): Route = Auth.userRoute(user => {
-    val future: Future[Workspace] = workspacesActor ? (ref => CreateWorkspace(payload.name, user, ref))
+    val future: Future[Workspace] = workspacesActor ? (CreateWorkspace(payload.name, user, _))
     onSuccess(future)(Response.json(_))
   })
 
   private def memberRoute(workspaceId: Int)(callback: User => Route): Route = Auth.userRoute(user => {
-    val membersFuture: Future[Seq[User] | InternalError] = workspacesActor ? (ref => GetMembers(workspaceId, ref))
+    val membersFuture: Future[Seq[User] | InternalError] = workspacesActor ? (GetMembers(workspaceId, _))
     val result = Await.result(membersFuture, timeout.duration)
     result match
       case error: InternalError => Response.status(StatusCodes.InternalServerError)
@@ -50,7 +50,7 @@ class WorkspacesController(val workspacesActor: ActorRef[WorkspacesActor.Command
   })
 
   private def ownerRoute(workspaceId: Int)(callback: User => Route): Route = Auth.userRoute(user => {
-    val ownerFuture: Future[User | WorkspaceNotFound | InternalError] = workspacesActor ? (ref => GetOwner(workspaceId, ref))
+    val ownerFuture: Future[User | WorkspaceNotFound | InternalError] = workspacesActor ? (GetOwner(workspaceId, _))
     val result = Await.result(ownerFuture, timeout.duration);
     result match
       case _: InternalError => Response.status(StatusCodes.InternalServerError)
@@ -60,12 +60,12 @@ class WorkspacesController(val workspacesActor: ActorRef[WorkspacesActor.Command
   })
 
   def inviteUser(workspaceId: Int, payload: InviteUserPayload): Route = ownerRoute(workspaceId)(user => {
-    val inviteFuture = workspacesActor ? (ref => WorkspacesActor.AddMember(workspaceId, payload, ref))
+    val inviteFuture = workspacesActor ? (WorkspacesActor.AddMember(workspaceId, payload, _))
     onSuccess(inviteFuture)(_ => Response.status(StatusCodes.OK))
   })
 
   def getWorkspace(workspaceId: Int): Route = memberRoute(workspaceId)(user => {
-    val workspaceFuture: Future[Option[Workspace]] = workspacesActor ? (ref => GetById(workspaceId, ref))
+    val workspaceFuture: Future[Option[Workspace]] = workspacesActor ? (GetById(workspaceId, _))
     onSuccess(workspaceFuture) {
       case Some(workspace) => Response.json(workspace)
       case None => Response.status(StatusCodes.NotFound)
@@ -73,7 +73,7 @@ class WorkspacesController(val workspacesActor: ActorRef[WorkspacesActor.Command
   })
 
   def getMembers(workspaceId: Int): Route = memberRoute(workspaceId)(user => {
-    val future: Future[Seq[User] | WorkspacesActor.InternalError] = workspacesActor ? (ref => GetMembers(workspaceId, ref))
+    val future: Future[Seq[User] | WorkspacesActor.InternalError] = workspacesActor ? (GetMembers(workspaceId, _))
     onSuccess(future) {
       case users: Seq[User] => Response.json(users)
       case _: WorkspacesActor.InternalError => Response.status(StatusCodes.InternalServerError)
@@ -81,7 +81,7 @@ class WorkspacesController(val workspacesActor: ActorRef[WorkspacesActor.Command
   })
 
   def updateWorkspace(workspaceId: Int, payload: UpdatePayload): Route = ownerRoute(workspaceId)(user => {
-    val updateFuture = workspacesActor ? (ref => WorkspacesActor.UpdateWorkspace(workspaceId, payload, ref))
+    val updateFuture = workspacesActor ? (WorkspacesActor.UpdateWorkspace(workspaceId, payload, _))
     onSuccess(updateFuture) {
       case _: WorkspaceNotFound => Response.status(StatusCodes.NotFound)
       case workspace: Workspace => Response.json(workspace)
@@ -89,7 +89,7 @@ class WorkspacesController(val workspacesActor: ActorRef[WorkspacesActor.Command
   })
 
   def deleteWorkspace(workspaceId: Int): Route = ownerRoute(workspaceId)(user => {
-    val deleteFuture = workspacesActor ? (ref => WorkspacesActor.DeleteWorkspace(workspaceId, ref))
+    val deleteFuture = workspacesActor ? (WorkspacesActor.DeleteWorkspace(workspaceId, _))
     onSuccess(deleteFuture)(_ => Response.status(StatusCodes.OK))
   })
 }

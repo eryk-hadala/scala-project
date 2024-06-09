@@ -74,7 +74,7 @@ object IssuesActor {
               replyTo ! None
               Behaviors.same
             case Some(issue) =>
-              val ownerFuture: Future[Option[User]] = usersActor ? (ref => UsersActor.GetById(issue.ownerId, ref))
+              val ownerFuture: Future[Option[User]] = usersActor ? (UsersActor.GetById(issue.ownerId, _))
 
               ownerFuture.onComplete {
                 case Failure(_) => replyTo ! None
