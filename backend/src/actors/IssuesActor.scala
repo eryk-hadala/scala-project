@@ -2,17 +2,17 @@ package actors
 
 import akka.actor.typed.scaladsl.AskPattern.{Askable, schedulerFromActorSystem}
 import akka.actor.typed.scaladsl.Behaviors
-import akka.actor.typed.{ActorRef, ActorSystem, Behavior, DispatcherSelector}
-import akka.util.Timeout
+import akka.actor.typed.{ActorRef, ActorSystem, Behavior}
 import controllers.IssuesController.SetAssigneesPayload
 import helpers.Database
+import helpers.Timeout.timeout
 import models.*
 import slick.jdbc.SQLiteProfile.api.*
 import upickle.default.*
 
 import java.time.LocalDateTime
-import scala.concurrent.duration.*
-import scala.concurrent.{ExecutionContextExecutor, Future}
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 import scala.util.{Failure, Success}
 
 
@@ -53,12 +53,6 @@ object IssuesActor {
 
   def apply(usersActor: ActorRef[UsersActor.Command])(implicit system: ActorSystem[_]): Behavior[Command] =
     Behaviors.setup { context =>
-
-      implicit val timeout: Timeout = 3.seconds
-      val selector = DispatcherSelector.fromConfig("blocking-dispatcher")
-      implicit val executionContext: ExecutionContextExecutor = system.dispatchers.lookup(selector)
-
-
       Behaviors.receiveMessage {
         case GetIssuesByWorkspaceId(workspaceId, replyTo) =>
           replyTo ! getByWorkspaceId(workspaceId).map(issue =>

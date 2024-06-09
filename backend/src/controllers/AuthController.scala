@@ -70,11 +70,9 @@ class AuthController(val authActor: ActorRef[AuthActor.Command], val usersActor:
 
   def getSignedIn: Route = Auth.userRoute(user => Response.json(user))
 
-  def updateUser(payload: UpdatePayload): Route = {
-    Auth.userRoute { oldUser =>
-      val updateUserFuture: Future[User] =
-        usersActor ? (UsersActor.Update(oldUser.id, payload.avatarUrl, payload.username, _))
-      onSuccess(updateUserFuture)(Response.json(_))
-    }
+  def updateUser(payload: UpdatePayload): Route = Auth.userRoute { oldUser =>
+    val updateUserFuture: Future[User] =
+      usersActor ? (UsersActor.Update(oldUser.id, payload.avatarUrl, payload.username, _))
+    onSuccess(updateUserFuture)(Response.json(_))
   }
 }

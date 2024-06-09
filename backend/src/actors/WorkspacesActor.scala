@@ -4,14 +4,14 @@ import actors.UsersActor.GetByIds
 import akka.actor.typed.scaladsl.AskPattern.{Askable, schedulerFromActorSystem}
 import akka.actor.typed.scaladsl.Behaviors
 import akka.actor.typed.{ActorRef, ActorSystem, Behavior, DispatcherSelector}
-import akka.util.Timeout
 import controllers.WorkspacesController.{InviteUserPayload, UpdatePayload}
 import helpers.Database
+import helpers.Timeout.timeout
 import models.*
 import slick.jdbc.SQLiteProfile.api.*
 
 import java.time.LocalDateTime
-import scala.concurrent.duration.*
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ExecutionContextExecutor, Future}
 import scala.util.{Failure, Success}
 
@@ -44,16 +44,9 @@ object WorkspacesActor {
 
   private val userWorkspaces = TableQuery[UserWorkspaces]
   private val workspaces = TableQuery[Workspaces]
-  implicit val timeout: Timeout = 5.seconds
-
 
   def apply(usersActor: ActorRef[UsersActor.Command])(implicit system: ActorSystem[_]): Behavior[Command] =
     Behaviors.setup { context =>
-
-      implicit val timeout: Timeout = 3.seconds
-      val selector = DispatcherSelector.fromConfig("blocking-dispatcher")
-      implicit val executionContext: ExecutionContextExecutor = system.dispatchers.lookup(selector)
-
       Behaviors.receiveMessage {
         case GetUserWorkspaces(user, replyTo) =>
           replyTo ! getUserWorkspaces(user.id)

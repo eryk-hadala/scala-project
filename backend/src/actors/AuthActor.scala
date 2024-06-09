@@ -4,12 +4,12 @@ import actors.UsersActor.{Command, CreateNew, GetByEmail}
 import akka.actor.typed.scaladsl.AskPattern.*
 import akka.actor.typed.scaladsl.Behaviors
 import akka.actor.typed.{ActorRef, ActorSystem, Behavior, DispatcherSelector}
-import akka.util.Timeout
 import controllers.AuthController.{SignInPayload, SignUpPayload}
+import helpers.Timeout.timeout
 import models.User
 import org.mindrot.jbcrypt.BCrypt
 
-import scala.concurrent.duration.*
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.{ExecutionContextExecutor, Future}
 import scala.util.{Failure, Success}
 
@@ -30,11 +30,6 @@ object AuthActor {
 
   def apply(usersActor: ActorRef[UsersActor.Command])(implicit system: ActorSystem[_]): Behavior[Command] =
     Behaviors.setup { context =>
-
-      implicit val timeout: Timeout = 3.seconds
-      implicit val executionContext: ExecutionContextExecutor =
-        system.dispatchers.lookup(DispatcherSelector.fromConfig("blocking-dispatcher"))
-
       Behaviors.receiveMessage {
         case SignUp(payload, replyTo) =>
           val userFuture: Future[Option[User]] = usersActor ? (UsersActor.GetByEmail(payload.email, _))
