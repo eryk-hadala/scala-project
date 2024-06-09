@@ -17,15 +17,15 @@ class AuthRoutes(authActor: ActorRef[AuthActor.Command], usersActor: ActorRef[Us
       concat(
         path("sign-up") {
           post {
-            entity(as[SignUpPayload]) { payload =>
-              controller.signUp(payload)
+            entity(as[SignUpPayload]) {
+              controller.signUp
             }
           }
         },
         path("sign-in") {
           post {
-            entity(as[SignInPayload]) { payload =>
-              controller.signIn(payload)
+            entity(as[SignInPayload]) {
+              controller.signIn
             }
           }
         },
@@ -40,8 +40,8 @@ class AuthRoutes(authActor: ActorRef[AuthActor.Command], usersActor: ActorRef[Us
               controller.getSignedIn
             },
             post {
-              entity(as[UpdatePayload]) { payload =>
-                controller.updateUser(payload)
+              entity(as[UpdatePayload]) {
+                controller.updateUser
               }
             }
           )

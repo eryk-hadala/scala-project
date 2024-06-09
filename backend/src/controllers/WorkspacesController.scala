@@ -7,12 +7,11 @@ import akka.actor.typed.{ActorRef, ActorSystem}
 import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.server.Directives.onSuccess
 import akka.http.scaladsl.server.Route
-import akka.util.Timeout
+import helpers.Timeout.timeout
 import helpers.{Auth, Response}
 import models.{User, Workspace}
 
 import java.time.LocalDateTime
-import scala.concurrent.duration.*
 import scala.concurrent.{Await, Future}
 
 object WorkspacesController {
@@ -27,8 +26,6 @@ class WorkspacesController(val workspacesActor: ActorRef[WorkspacesActor.Command
                           (implicit system: ActorSystem[_]) {
 
   import WorkspacesController.*
-
-  implicit val timeout: Timeout = 5.seconds
 
   def getWorkspaces: Route = Auth.userRoute(user => {
     val future: Future[Seq[Workspace]] = workspacesActor ? (GetUserWorkspaces(user, _))

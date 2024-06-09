@@ -9,6 +9,7 @@ import akka.http.scaladsl.model.headers.HttpCookie
 import akka.http.scaladsl.server.Directives.{deleteCookie, onSuccess, setCookie}
 import akka.http.scaladsl.server.Route
 import akka.util.Timeout
+import helpers.Timeout.timeout
 import helpers.{Auth, Jwt, Response}
 import models.User
 
@@ -33,8 +34,6 @@ class AuthController(val authActor: ActorRef[AuthActor.Command], val usersActor:
                     (implicit system: ActorSystem[_]) {
 
   import AuthController.*
-
-  implicit val timeout: Timeout = 5.seconds
 
   private def setUserCookie(user: User): Route = {
     val token = Jwt.encode(user)
