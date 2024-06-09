@@ -17,7 +17,7 @@ object User {
       "avatarUrl" -> user.avatarUrl,
       "username" -> user.username,
       "email" -> user.email,
-      "password" -> user.password,
+      "password" -> "",
       "modifiedAt" -> user.modifiedAt.toString,
       "createdAt" -> user.createdAt.toString
     ),
@@ -26,7 +26,7 @@ object User {
       json("avatarUrl").str,
       json("username").str,
       json("email").str,
-      json("password").str,
+      "",
       LocalDateTime.parse(json("modifiedAt").str),
       LocalDateTime.parse(json("createdAt").str)
     )
