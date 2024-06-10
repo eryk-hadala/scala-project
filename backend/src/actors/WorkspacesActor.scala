@@ -3,7 +3,7 @@ package actors
 import actors.UsersActor.GetByIds
 import akka.actor.typed.scaladsl.AskPattern.{Askable, schedulerFromActorSystem}
 import akka.actor.typed.scaladsl.Behaviors
-import akka.actor.typed.{ActorRef, ActorSystem, Behavior, DispatcherSelector}
+import akka.actor.typed.{ActorRef, ActorSystem, Behavior}
 import controllers.WorkspacesController.{InviteUserPayload, UpdatePayload}
 import helpers.Database
 import helpers.Timeout.timeout
@@ -12,7 +12,7 @@ import slick.jdbc.SQLiteProfile.api.*
 
 import java.time.LocalDateTime
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.{ExecutionContextExecutor, Future}
+import scala.concurrent.Future
 import scala.util.{Failure, Success}
 
 object WorkspacesActor {

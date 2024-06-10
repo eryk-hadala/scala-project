@@ -3,14 +3,14 @@ package actors
 import actors.UsersActor.{Command, CreateNew, GetByEmail}
 import akka.actor.typed.scaladsl.AskPattern.*
 import akka.actor.typed.scaladsl.Behaviors
-import akka.actor.typed.{ActorRef, ActorSystem, Behavior, DispatcherSelector}
+import akka.actor.typed.{ActorRef, ActorSystem, Behavior}
 import controllers.AuthController.{SignInPayload, SignUpPayload}
 import helpers.Timeout.timeout
 import models.User
 import org.mindrot.jbcrypt.BCrypt
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.{ExecutionContextExecutor, Future}
+import scala.concurrent.Future
 import scala.util.{Failure, Success}
 
 object AuthActor {

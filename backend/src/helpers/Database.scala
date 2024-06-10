@@ -1,13 +1,12 @@
 package helpers
 
 import slick.dbio.{DBIOAction, NoStream}
-import slick.jdbc.SQLiteProfile.api._
-import slick.jdbc.SQLiteProfile.api.{Database => SqliteDatabase}
+import slick.jdbc.SQLiteProfile.api.Database as SqliteDatabase
 
 import scala.concurrent.Await
-import scala.concurrent.duration.*
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.util.{Success, Failure}
+import scala.concurrent.duration.*
+import scala.util.{Failure, Success}
 
 object Database {
   private val db = SqliteDatabase.forConfig("slick.dbs.default")

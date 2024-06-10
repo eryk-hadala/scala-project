@@ -105,7 +105,7 @@ object IssuesActor {
       }
     }
 
-  def getByWorkspaceId(workspaceId: Int): Seq[Issue] = {
+  private def getByWorkspaceId(workspaceId: Int): Seq[Issue] = {
     val query = issues.filter(_.workspaceId === workspaceId).result
     val result = Database.exec(query)
     result
@@ -117,7 +117,7 @@ object IssuesActor {
     result
   }
 
-  def getIssueUsers(issueId: Int): Seq[User] = {
+  private def getIssueUsers(issueId: Int): Seq[User] = {
     val query = (for {
       (ab, a) <- userIssues join users on (_.userId === _.id)
     } yield (a, ab.issueId)).filter(_._2 === issueId).map(_._1).result
@@ -144,7 +144,7 @@ object IssuesActor {
     Database.exec(query)
   }
 
-  private def setAssignees(issueId: Int, userIds: Seq[Int]) = {
+  private def setAssignees(issueId: Int, userIds: Seq[Int]): Unit = {
     val currentDateTime: LocalDateTime = LocalDateTime.now()
 
     val deleteQuery = userIssues.filter(_.issueId === issueId).delete

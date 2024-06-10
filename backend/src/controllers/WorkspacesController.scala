@@ -48,7 +48,7 @@ class WorkspacesController(val workspacesActor: ActorRef[WorkspacesActor.Command
 
   private def ownerRoute(workspaceId: Int)(callback: User => Route): Route = Auth.userRoute(user => {
     val ownerFuture: Future[User | WorkspaceNotFound | InternalError] = workspacesActor ? (GetOwner(workspaceId, _))
-    val result = Await.result(ownerFuture, timeout.duration);
+    val result = Await.result(ownerFuture, timeout.duration)
     result match
       case _: InternalError => Response.status(StatusCodes.InternalServerError)
       case _: WorkspaceNotFound => Response.status(StatusCodes.NotFound)

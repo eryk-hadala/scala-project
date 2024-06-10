@@ -8,14 +8,12 @@ import akka.http.scaladsl.model.StatusCodes
 import akka.http.scaladsl.model.headers.HttpCookie
 import akka.http.scaladsl.server.Directives.{deleteCookie, onSuccess, setCookie}
 import akka.http.scaladsl.server.Route
-import akka.util.Timeout
 import helpers.Timeout.timeout
 import helpers.{Auth, Jwt, Response}
 import models.User
 
 import java.time.LocalDateTime
 import scala.concurrent.Future
-import scala.concurrent.duration.*
 
 object AuthController {
   private val cookieKey = "user"

@@ -24,8 +24,6 @@ object UsersActor {
 
   final case class Update(id: Int, avatarUrl: String, username: String, replyTo: ActorRef[User]) extends Command
 
-  final case class GetUsers(replyTo: ActorRef[Seq[User]]) extends Command
-
 
   def apply(): Behavior[Command] = Behaviors.setup { context =>
     val users = TableQuery[Users]
@@ -36,10 +34,6 @@ object UsersActor {
       result
 
     Behaviors.receiveMessage {
-      case GetUsers(replyTo) =>
-        replyTo ! Database.exec(users.result)
-        Behaviors.same
-
       case GetById(id, replyTo) =>
         replyTo ! getUserById(id)
         Behaviors.same
