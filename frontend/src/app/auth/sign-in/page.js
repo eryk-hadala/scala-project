@@ -7,9 +7,7 @@ const SignInPage = () => {
       <div className="flex-1" />
       <div className="mx-auto py-8 px-4 flex w-full flex-col justify-center space-y-6 sm:w-[382px]">
         <div className="flex flex-col space-y-2 text-center">
-          <h1 className="text-2xl font-semibold tracking-tight">
-            Zaloguj się używając konta
-          </h1>
+          <h1 className="text-2xl font-semibold tracking-tight">Zaloguj się</h1>
           <p className="text-sm text-muted-foreground">
             Enter your email below to create your account
           </p>

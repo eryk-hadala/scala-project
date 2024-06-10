@@ -7,7 +7,7 @@ import akka.http.scaladsl.Http
 import akka.http.scaladsl.server.Directives.{concat, pathPrefix}
 import akka.http.scaladsl.server.Route
 import helpers.Cors
-import routes.{AuthRoutes, WorkspacesRoutes}
+import routes.{AuthRoutes, UsersRoutes, WorkspacesRoutes}
 
 import scala.io.StdIn
 
@@ -44,6 +44,7 @@ def serve(): Unit =
         concat(
           new AuthRoutes(authActor, usersActor).routes,
           new WorkspacesRoutes(workspacesActor, issuesActor).routes,
+          new UsersRoutes(usersActor).routes,
         )
     }
 
