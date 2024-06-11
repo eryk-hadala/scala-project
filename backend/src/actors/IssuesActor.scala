@@ -18,15 +18,15 @@ import scala.util.{Failure, Success}
 
 object IssuesActor {
 
-  case class GetIssuesResponse(id: Int, title: String, modifiedAt: String, createdAt: String, assignees: Seq[User])
+  case class GetIssuesResponse(id: Int, title: String, status: String, label: String, priority: String, modifiedAt: String, createdAt: String, assignees: Seq[User])
     derives ReadWriter
 
-  case class GetSingleIssueResponse(id: Int, owner: User, title: String, content: String, modifiedAt: String,
+  case class GetSingleIssueResponse(id: Int, owner: User, title: String, status: String, label: String, priority: String, content: String, modifiedAt: String,
                                     createdAt: String, assignees: Seq[User])derives ReadWriter
 
-  case class CreatePayload(title: String, content: String, userId: Int, workspaceId: Int)
+  case class CreatePayload(title: String, status: String, label: String, priority: String, content: String, userId: Int, workspaceId: Int)
 
-  case class IssueData(title: String, content: String)
+  case class IssueData(title: String, status: String, label: String, priority: String, content: String)
 
   case class IssueDeleted()
 
@@ -56,7 +56,7 @@ object IssuesActor {
       Behaviors.receiveMessage {
         case GetIssuesByWorkspaceId(workspaceId, replyTo) =>
           replyTo ! getByWorkspaceId(workspaceId).map(issue =>
-            GetIssuesResponse(issue.id, issue.title, issue.modifiedAt.toString,
+            GetIssuesResponse(issue.id, issue.title, issue.status, issue.label, issue.priority, issue.modifiedAt.toString,
               issue.createdAt.toString, getIssueUsers(issue.id)))
           Behaviors.same
 
@@ -75,7 +75,7 @@ object IssuesActor {
                 case Success(None) => replyTo ! None
                 case Success(Some(owner)) =>
                   val response =
-                    GetSingleIssueResponse(issue.id, owner, issue.title, issue.content,
+                    GetSingleIssueResponse(issue.id, owner, issue.title, issue.status, issue.label, issue.priority, issue.content,
                       issue.modifiedAt.toString, issue.createdAt.toString, getIssueUsers(issue.id))
                   replyTo ! Some(response)
               }
@@ -84,7 +84,7 @@ object IssuesActor {
 
         case CreateIssue(payload, replyTo) =>
           val currentDateTime = LocalDateTime.now()
-          val issue = Issue(0, payload.userId, payload.workspaceId, payload.title, payload.content, currentDateTime, currentDateTime)
+          val issue = Issue(0, payload.userId, payload.workspaceId, payload.status, payload.label, payload.priority, payload.title, payload.content, currentDateTime, currentDateTime)
           val inserted = insert(issue)
           Behaviors.same
 

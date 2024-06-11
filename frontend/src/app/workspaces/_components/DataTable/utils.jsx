@@ -17,67 +17,6 @@ import { Checkbox } from "@/components/ui/checkbox";
 import ColumnHeader from "@/app/workspaces/_components/DataTable/ColumnHeader";
 import RowActions from "@/app/workspaces/_components/DataTable/RowActions";
 
-export const labels = [
-  {
-    value: "bug",
-    label: "Bug",
-  },
-  {
-    value: "feature",
-    label: "Feature",
-  },
-  {
-    value: "documentation",
-    label: "Documentation",
-  },
-];
-
-export const statuses = [
-  {
-    value: "backlog",
-    label: "Backlog",
-    icon: QuestionMarkCircledIcon,
-  },
-  {
-    value: "todo",
-    label: "Todo",
-    icon: CircleIcon,
-  },
-  {
-    value: "in progress",
-    label: "In Progress",
-    icon: StopwatchIcon,
-  },
-  {
-    value: "done",
-    label: "Done",
-    icon: CheckCircledIcon,
-  },
-  {
-    value: "canceled",
-    label: "Canceled",
-    icon: CrossCircledIcon,
-  },
-];
-
-export const priorities = [
-  {
-    label: "Low",
-    value: "low",
-    icon: ArrowDownIcon,
-  },
-  {
-    label: "Medium",
-    value: "medium",
-    icon: ArrowRightIcon,
-  },
-  {
-    label: "High",
-    value: "high",
-    icon: ArrowUpIcon,
-  },
-];
-
 export const columns = [
   {
     id: "select",
@@ -114,7 +53,7 @@ export const columns = [
     accessorKey: "title",
     header: ({ column }) => <ColumnHeader column={column} title="Tytuł" />,
     cell: ({ row }) => {
-      const label = labels.find((label) => label.value === row.original.label);
+      const label = row.original.label;
 
       return (
         <div className="flex space-x-2">

@@ -15,20 +15,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import ColumnHeader from "@/app/workspaces/_components/DataTable/ColumnHeader";
 import RowActions from "@/app/workspaces/_components/DataTable/RowActions";
 
-export const labels = [
-  {
-    value: "bug",
-    label: "Bug",
-  },
-  {
-    value: "feature",
-    label: "Feature",
-  },
-  {
-    value: "documentation",
-    label: "Documentation",
-  },
-];
+export const labels = ["Documentation", "Bug", "Feature"];
 
 export const statuses = [
   {
@@ -43,34 +30,34 @@ export const statuses = [
   },
   {
     value: "in progress",
-    label: "In Progress",
+    label: "W Trakcie",
     icon: StopwatchIcon,
   },
   {
     value: "done",
-    label: "Done",
+    label: "Zrobione",
     icon: CheckCircledIcon,
   },
   {
     value: "canceled",
-    label: "Canceled",
+    label: "Anulowane",
     icon: CrossCircledIcon,
   },
 ];
 
 export const priorities = [
   {
-    label: "Low",
+    label: "Niski",
     value: "low",
     icon: ArrowDownIcon,
   },
   {
-    label: "Medium",
+    label: "Średni",
     value: "medium",
     icon: ArrowRightIcon,
   },
   {
-    label: "High",
+    label: "Wysoki",
     value: "high",
     icon: ArrowUpIcon,
   },
@@ -112,11 +99,11 @@ export const columns = [
     accessorKey: "title",
     header: ({ column }) => <ColumnHeader column={column} title="Tytuł" />,
     cell: ({ row }) => {
-      const label = labels.find((label) => label.value === row.original.label);
+      const label = row.original.label;
 
       return (
         <div className="flex space-x-2">
-          {label && <Badge variant="outline">{label.label}</Badge>}
+          {label && <Badge variant="outline">{label}</Badge>}
           <span className="max-w-[500px] truncate font-medium">
             {row.getValue("title")}
           </span>
