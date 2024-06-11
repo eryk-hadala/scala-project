@@ -27,7 +27,7 @@ trait JsonSupport extends SprayJsonSupport with DefaultJsonProtocol {
   implicit val inviteUserPayloadFormat: RootJsonFormat[WorkspacesController.InviteUserPayload] = jsonFormat1(WorkspacesController.InviteUserPayload.apply)
   implicit val updateWorkspacePayloadFormat: RootJsonFormat[WorkspacesController.UpdatePayload] = jsonFormat1(WorkspacesController.UpdatePayload.apply)
 
-  implicit val createIssuePayloadFormat: RootJsonFormat[IssuesController.CreatePayload] = jsonFormat2(IssuesController.CreatePayload.apply)
-  implicit val updateIssuePayloadFormat: RootJsonFormat[IssuesController.UpdatePayload] = jsonFormat2(IssuesController.UpdatePayload.apply)
+  implicit val createIssuePayloadFormat: RootJsonFormat[IssuesController.CreatePayload] = jsonFormat5(IssuesController.CreatePayload.apply)
+  implicit val updateIssuePayloadFormat: RootJsonFormat[IssuesController.UpdatePayload] = jsonFormat5(IssuesController.UpdatePayload.apply)
   implicit val assignUserPayloadFormat: RootJsonFormat[IssuesController.SetAssigneesPayload] = jsonFormat1(IssuesController.SetAssigneesPayload.apply)
 }

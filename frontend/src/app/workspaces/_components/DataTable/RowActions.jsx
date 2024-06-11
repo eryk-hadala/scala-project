@@ -18,9 +18,11 @@ import {
 } from "@/components/ui/dropdown-menu";
 
 import { labels } from "@/app/workspaces/_lib/utils";
+import { useDeleteIssue } from "@/app/workspaces/_api/deleteIssue";
 
 const RowActions = ({ row }) => {
   const task = row.original;
+  const { mutate } = useDeleteIssue();
 
   return (
     <DropdownMenu>
@@ -42,15 +44,15 @@ const RowActions = ({ row }) => {
           <DropdownMenuSubContent>
             <DropdownMenuRadioGroup value={task.label}>
               {labels.map((label) => (
-                <DropdownMenuRadioItem key={label.value} value={label.value}>
-                  {label.label}
+                <DropdownMenuRadioItem key={label} value={label}>
+                  {label}
                 </DropdownMenuRadioItem>
               ))}
             </DropdownMenuRadioGroup>
           </DropdownMenuSubContent>
         </DropdownMenuSub>
         <DropdownMenuSeparator />
-        <DropdownMenuItem>
+        <DropdownMenuItem onClick={() => mutate(task.id)}>
           Usuń
           <DropdownMenuShortcut>⌘⌫</DropdownMenuShortcut>
         </DropdownMenuItem>

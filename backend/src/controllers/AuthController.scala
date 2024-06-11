@@ -70,6 +70,6 @@ class AuthController(val authActor: ActorRef[AuthActor.Command], val usersActor:
   def updateUser(payload: UpdatePayload): Route = Auth.userRoute { oldUser =>
     val updateUserFuture: Future[User] =
       usersActor ? (UsersActor.Update(oldUser.id, payload.avatarUrl, payload.username, _))
-    onSuccess(updateUserFuture)(Response.json(_))
+    onSuccess(updateUserFuture)(setUserCookie(_))
   }
 }

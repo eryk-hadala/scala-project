@@ -58,7 +58,7 @@ const WorkspaceSwitcher = ({ className }) => {
                 alt={selectedOrPlaceholder.name}
                 className="grayscale"
               />
-              <AvatarFallback className="w-5 h-5 text-[8px]">SC</AvatarFallback>
+              <AvatarFallback className="w-5 h-5 text-[8px]">Ww</AvatarFallback>
             </Avatar>
             {selectedOrPlaceholder.name}
             <CaretSortIcon className="ml-auto h-4 w-4 shrink-0 opacity-50" />
@@ -86,7 +86,7 @@ const WorkspaceSwitcher = ({ className }) => {
                         className="grayscale"
                       />
                       <AvatarFallback className="w-5 h-5 text-[8px]">
-                        SC
+                        Ww
                       </AvatarFallback>
                     </Avatar>
                     {workspace.name}
