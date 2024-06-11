@@ -86,6 +86,7 @@ object IssuesActor {
           val currentDateTime = LocalDateTime.now()
           val issue = Issue(0, payload.userId, payload.workspaceId, payload.title, payload.content, currentDateTime, currentDateTime)
           val inserted = insert(issue)
+          replyTo ! inserted
           Behaviors.same
 
         case UpdateIssue(issueId, payload, replyTo) =>

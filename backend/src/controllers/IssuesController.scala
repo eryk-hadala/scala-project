@@ -68,7 +68,7 @@ class IssuesController(val workspacesActor: ActorRef[WorkspacesActor.Command],
     val future: Future[Option[Issue]] = issuesActor ? (UpdateIssue(issueId, data, _))
     onSuccess(future) {
       case None => Response.status(StatusCodes.BadRequest)
-      case issue => Response.json(issue)
+      case Some(issue) => Response.json(issue)
     }
   }
 

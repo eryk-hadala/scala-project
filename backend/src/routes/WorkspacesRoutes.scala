@@ -6,7 +6,7 @@ import akka.http.scaladsl.server.Directives.*
 import akka.http.scaladsl.server.PathMatchers.IntNumber
 import akka.http.scaladsl.server.Route
 import controllers.{IssuesController, WorkspacesController}
-import helpers.{Auth, JsonSupport}
+import helpers.JsonSupport
 
 class WorkspacesRoutes(val workspacesActor: ActorRef[WorkspacesActor.Command],
                        val issuesActor: ActorRef[IssuesActor.Command])(implicit system: ActorSystem[_]) extends JsonSupport {
@@ -37,45 +37,42 @@ class WorkspacesRoutes(val workspacesActor: ActorRef[WorkspacesActor.Command],
                   workspacesController.deleteWorkspace(workspaceId)
               )
             },
-            path("members") {
-              concat(
-                get:
-                  workspacesController.getMembers(workspaceId),
-                post:
-                  entity(as[WorkspacesController.InviteUserPayload]): payload =>
-                    workspacesController.inviteUser(workspaceId, payload)
-              )
-            },
-            Auth.userRoute(user => {
-              concat(
-                pathPrefix("issues") {
-                  concat(
-                    pathEndOrSingleSlash:
-                      concat(
-                        get:
-                          issuesController.getIssues(workspaceId),
+            concat(
+              path("members") {
+                concat(
+                  get:
+                    workspacesController.getMembers(workspaceId),
+                  post:
+                    entity(as[WorkspacesController.InviteUserPayload]): payload =>
+                      workspacesController.inviteUser(workspaceId, payload)
+                )
+              },
+              pathPrefix("issues") {
+                concat(
+                  pathEndOrSingleSlash:
+                    concat(
+                      get:
+                        issuesController.getIssues(workspaceId),
+                      post:
+                        entity(as[IssuesController.CreatePayload]): payload =>
+                          issuesController.createIssue(workspaceId, payload)
+                    ),
+                  pathPrefix(IntNumber): issueId =>
+                    concat(
+                      get:
+                        issuesController.getSingleIssue(workspaceId, issueId),
+                      put:
+                        entity(as[IssuesController.UpdatePayload]): payload =>
+                          issuesController.updateIssue(workspaceId, issueId, payload),
+                      delete:
+                        issuesController.deleteIssue(workspaceId, issueId),
+                      path("assignees"):
                         post:
-                          entity(as[IssuesController.CreatePayload]): payload =>
-                            issuesController.createIssue(workspaceId, payload)
-                      ),
-                    pathPrefix(IntNumber): issueId =>
-                      concat(
-                        get:
-                          issuesController.getSingleIssue(workspaceId, issueId),
-                        put:
-                          entity(as[IssuesController.UpdatePayload]): payload =>
-                            issuesController.updateIssue(workspaceId, issueId, payload),
-                        delete:
-                          issuesController.deleteIssue(workspaceId, issueId),
-                        path("assignees"):
-                          post:
-                            entity(as[IssuesController.SetAssigneesPayload]): payload =>
-                              issuesController.setAssignees(workspaceId, issueId, payload)
-                      )
-                  )
-                }
-              )
-            }
+                          entity(as[IssuesController.SetAssigneesPayload]): payload =>
+                            issuesController.setAssignees(workspaceId, issueId, payload)
+                    )
+                )
+              }
             )
           )
       )
