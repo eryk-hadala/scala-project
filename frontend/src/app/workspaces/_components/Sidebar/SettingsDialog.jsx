@@ -12,15 +12,16 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import SettingsDialogSidebar from "@/app/workspaces/_components/Sidebar/SettingsDialogSidebar";
 import { Form, FormField } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { useSingleWorkspace } from "../../_api/getWorkspaces";
 import { ReloadIcon } from "@radix-ui/react-icons";
 import { useUpdateWorkspace } from "../../_api/updateWorkspace";
+import { useRemoveWorkspace } from "../../_api/removeWorkspace";
 
 const SettingsDialog = ({ children }) => {
   const { workspace } = useSingleWorkspace();
+  const { mutate: remove, isPending: isRemoving } = useRemoveWorkspace();
   const { mutateAsync, isPending } = useUpdateWorkspace();
   const form = useForm({
     defaultValues: {
@@ -44,12 +45,24 @@ const SettingsDialog = ({ children }) => {
         </DialogHeader>
         <Separator className="my-2" />
         <div className="flex text-left flex-col gap-x-8 gap-y-4 lg:flex-row">
-          <SettingsDialogSidebar
+          <nav className={"flex w-60 lg:flex-col space-y-1"}>
+            <Button variant="ghost" className="bg-muted justify-start">
+              Główne
+            </Button>
+            <Button
+              variant="ghost"
+              className="text-red-600 hover:text-red-600 hover:bg-red-100 justify-start"
+              onClick={() => remove(workspace)}
+            >
+              Usuń
+            </Button>
+          </nav>
+          {/* <SettingsDialogSidebar
             items={[
               { href: "/", title: "Główne" },
               { href: "/2", title: "Uprawnienia" },
             ]}
-          />
+          /> */}
           <Form {...form}>
             <div className="flex-1 lg:max-w-2xl">
               <form onSubmit={form.handleSubmit(onSubmit)}>
@@ -80,8 +93,9 @@ const SettingsDialog = ({ children }) => {
                   >
                     <Input disabled />
                   </FormField>
-                  <Button type="submit" disabled={isPending}>
-                    {isPending && <ReloadIcon className="animate-spin" />}
+                  <Button type="submit" disabled={isPending || isRemoving}>
+                    {isPending ||
+                      (isRemoving && <ReloadIcon className="animate-spin" />)}
                     Aktualizuj
                   </Button>
                 </div>

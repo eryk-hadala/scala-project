@@ -59,9 +59,7 @@ class IssuesController(val workspacesActor: ActorRef[WorkspacesActor.Command],
   def createIssue(workspaceId: Int, payload: CreatePayload): Route = memberRouteUser(workspaceId)(user => {
     val data = IssuesActor.CreatePayload(payload.title, payload.status, payload.label, payload.priority, payload.content, user.id, workspaceId)
     val future: Future[Issue] = issuesActor ? (CreateIssue(data, _))
-
-    println("??")
-
+    
     onSuccess(future)(Response.json(_))
   })
 

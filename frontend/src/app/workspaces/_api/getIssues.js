@@ -15,19 +15,6 @@ export const getIssues = async (workspaceId) => {
   return await response.json();
 };
 
-export const getSingleIssue = async (id, workspaceId) => {
-  const response = await fetch(
-    `${API_BASE}/workspaces/${workspaceId}/issues/${id}`,
-    {
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    }
-  );
-  return await response.json();
-};
-
 export const useIssues = () => {
   const { toast } = useToast();
   const { id } = useParams();
@@ -46,20 +33,8 @@ export const useIssues = () => {
   return { issues: data, ...restQuery };
 };
 
-// export const useSingleIssue = () => {
-//   const params = useParams();
-//   const { toast } = useToast();
+export const useSingleIssue = (issueId) => {
+  const { issues, ...rest } = useIssues();
 
-//   const { data, ...restQuery } = useQuery({
-//     queryKey: [`issues/${params.id}`],
-//     queryFn: () => getSingleWorkspace(params.id),
-//     onError: () => {
-//       toast({
-//         title: "Coś poszło nie tak.",
-//         description: "Wystąpił problem podczas pobierania.",
-//       });
-//     },
-//   });
-
-//   return { workspace: data, ...restQuery };
-// };
+  return { issue: issues.find(({ id }) => id === issueId), ...rest };
+};

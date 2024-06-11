@@ -18,7 +18,7 @@ import scala.util.{Failure, Success}
 
 object IssuesActor {
 
-  case class GetIssuesResponse(id: Int, title: String, status: String, label: String, priority: String, modifiedAt: String, createdAt: String, assignees: Seq[User])
+  case class GetIssuesResponse(id: Int, workspaceId: Int, title: String, status: String, label: String, priority: String, content: String, modifiedAt: String, createdAt: String, assignees: Seq[User])
     derives ReadWriter
 
   case class GetSingleIssueResponse(id: Int, owner: User, title: String, status: String, label: String, priority: String, content: String, modifiedAt: String,
@@ -56,7 +56,7 @@ object IssuesActor {
       Behaviors.receiveMessage {
         case GetIssuesByWorkspaceId(workspaceId, replyTo) =>
           replyTo ! getByWorkspaceId(workspaceId).map(issue =>
-            GetIssuesResponse(issue.id, issue.title, issue.status, issue.label, issue.priority, issue.modifiedAt.toString,
+            GetIssuesResponse(issue.id, issue.workspaceId, issue.title, issue.status, issue.label, issue.priority, issue.content, issue.modifiedAt.toString,
               issue.createdAt.toString, getIssueUsers(issue.id)))
           Behaviors.same
 
@@ -90,7 +90,7 @@ object IssuesActor {
           Behaviors.same
 
         case UpdateIssue(issueId, payload, replyTo) =>
-          val issueOption = update(issueId, payload.title, payload.content)
+          val issueOption = update(issueId, payload.title, payload.status, payload.label, payload.priority, payload.content)
           replyTo ! issueOption
           Behaviors.same
 
@@ -132,10 +132,10 @@ object IssuesActor {
     getById(insertedId).get
   }
 
-  def update(id: Int, title: String, content: String): Option[Issue] = {
+  def update(id: Int, title: String, status: String, label: String, priority: String, content: String): Option[Issue] = {
     val query = issues.filter(_.id === id)
-      .map(oldUser => (oldUser.title, oldUser.content, oldUser.modifiedAt))
-      .update((title, content, LocalDateTime.now()))
+      .map(oldIssue => (oldIssue.title, oldIssue.status, oldIssue.label, oldIssue.priority, oldIssue.content, oldIssue.modifiedAt))
+      .update((title, status, label, priority, content, LocalDateTime.now()))
     Database.exec(query)
     getById(id)
   }

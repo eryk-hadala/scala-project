@@ -3,13 +3,13 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useToast } from "@/components/ui/use-toast";
 import { API_BASE } from "@/lib/utils";
-import { useParams } from "next/navigation";
 
-export const deleteIssue = async (id, workspaceId) => {
+export const assigneeIssue = async (issue) => {
   const response = await fetch(
-    `${API_BASE}/workspaces/${workspaceId}/issues/${id}`,
+    `${API_BASE}/workspaces/${issue.workspaceId}/issues/${issue.id}/assignees`,
     {
-      method: "DELETE",
+      method: "POST",
+      body: JSON.stringify({ userIds: issue.assignees }),
       credentials: "include",
       headers: {
         "Content-Type": "application/json",
@@ -19,17 +19,13 @@ export const deleteIssue = async (id, workspaceId) => {
   return await response.text();
 };
 
-export const useDeleteIssue = () => {
+export const useAssigneeIssue = () => {
   const queryClient = useQueryClient();
   const { toast } = useToast();
-  const { id: workspaceId } = useParams();
 
   return useMutation({
-    mutationFn: (id) => {
-      console.log(id, workspaceId);
-      return deleteIssue(id, workspaceId);
-    },
-    onSuccess: () => {
+    mutationFn: assigneeIssue,
+    onSuccess: (_, { workspaceId }) => {
       queryClient.invalidateQueries({ queryKey: [`${workspaceId}/issues`] });
     },
     onError: () => {

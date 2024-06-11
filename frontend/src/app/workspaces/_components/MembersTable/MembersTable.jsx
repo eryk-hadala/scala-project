@@ -21,18 +21,18 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-import Toolbar from "@/app/workspaces/_components/DataTable/Toolbar";
-import { columns } from "@/app/workspaces/_lib/utils";
+import Toolbar from "@/app/workspaces/_components/MembersTable/Toolbar";
+import { membersColumns } from "@/app/workspaces/_lib/utils";
 import { ReloadIcon } from "@radix-ui/react-icons";
 
-const DataTable = ({ data, isLoading }) => {
+const MembersTable = ({ data, isLoading }) => {
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnFilters, setColumnFilters] = React.useState([]);
   const [sorting, setSorting] = React.useState([]);
 
   const table = useReactTable({
     data,
-    columns,
+    columns: membersColumns,
     state: {
       sorting,
       rowSelection,
@@ -93,7 +93,7 @@ const DataTable = ({ data, isLoading }) => {
             ) : (
               <TableRow>
                 <TableCell
-                  colSpan={columns.length}
+                  colSpan={membersColumns.length}
                   className="h-24 text-center"
                 >
                   {isLoading ? (
@@ -115,4 +115,4 @@ const DataTable = ({ data, isLoading }) => {
   );
 };
 
-export default DataTable;
+export default MembersTable;

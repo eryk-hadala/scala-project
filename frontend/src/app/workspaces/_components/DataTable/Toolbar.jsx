@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 
 import Filter from "@/app/workspaces/_components/DataTable/Filter";
 import { statuses, priorities } from "@/app/workspaces/_lib/utils";
+import CreateIssueDialog from "../CreateIssueDialog";
 
 const Toolbar = ({ table }) => {
   const isFiltered = table.getState().columnFilters.length > 0;
@@ -47,10 +48,14 @@ const Toolbar = ({ table }) => {
           </Button>
         )}
       </div>
-      <Button size="sm" className="h-8">
-        <PlusCircledIcon className="mr-2 h-4 w-4" />
-        Dodaj zadanie
-      </Button>
+      <CreateIssueDialog
+        renderTrigger={
+          <Button size="sm" className="h-8">
+            <PlusCircledIcon className="mr-2 h-4 w-4" />
+            Dodaj zadanie
+          </Button>
+        }
+      />
     </div>
   );
 };
