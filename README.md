@@ -1,3 +1,7 @@
+###
+Zespół I\
+Eryk Hadała\
+Krzysztof Kapera
 # Scala CRUD
 This repository contains a complete web application that utilizes the technologies Scala, SQLite, NextJS.
 
